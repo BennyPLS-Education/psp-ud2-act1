@@ -1,11 +1,10 @@
-import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         int option;
-
+        
         System.out.println("-------------------------");
         System.out.println("Selecciona una activitat:");
         System.out.println("-------------------------");
@@ -21,9 +20,9 @@ public class Main {
         System.out.println("9. Exercici 9");
         System.out.println("10. Exercici 10");
         System.out.println("-------------------------");
-
+        
         option = getNumber();
-
+        
         switch (option) {
             case 0 -> System.out.println("Adeu!");
             case 1 -> act1.Main.main(args);
@@ -36,16 +35,20 @@ public class Main {
             case 8 -> act8.Main.main(args);
             case 9 -> act9.Main.main(args);
             case 10 -> act10.Main.main(args);
-
+            
             default -> System.out.println("Opció no vàlida");
         }
-
+        
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
+        
         if (option != 0) main(args);
     }
-
+    
     private static int getNumber() {
         var input = new Scanner(System.in);
-
+        
         while (true) {
             try {
                 System.out.print("Opció: ");

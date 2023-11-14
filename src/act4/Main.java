@@ -34,7 +34,6 @@ public class Main {
         } catch (InterruptedException ignored) {}
 
         System.out.println("Programa finalitzat.");
-        scanner.close();
     }
 
     private static int fib(int number) throws InterruptedException {

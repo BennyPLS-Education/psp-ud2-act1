@@ -12,7 +12,7 @@ public class Main {
             while (counter.getAndDecrement() > 0) {
                 System.out.println(counter.get());
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ignored) {}
             }
         }
@@ -25,7 +25,7 @@ public class Main {
 
         public Subscriber(int total) {
             this.half = total / 2;
-            this.quarter = total / 4;
+            this.quarter = (int) Math.ceil(total / 4.0);
             this.threeQuarters = total - quarter;
         }
 
@@ -42,7 +42,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        counter.set(getNumber() - 1);
+        counter.set(getNumber());
 
         var reverseCounter = new ReverseCounter();
         var subscriber = new Subscriber(counter.get());
