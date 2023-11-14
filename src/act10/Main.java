@@ -1,31 +1,59 @@
 package act10;
 
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
-    private static final ArrayBlockingQueue<String> queue = new ArrayBlockingQueue<>(1);
 
-    private static class printingThread extends Thread {
-        private final String string;
+    private static class TicTacToc extends Thread {
+        private final Semaphore internalSemaphore = new Semaphore(1);
+        private final Semaphore internalgroupSemaphore = new Semaphore(1);
         private final Semaphore semaphore;
 
-        printingThread(String string, Semaphore semaphore) {
+        private TicTacToc(Semaphore semaphore) {
+            this.semaphore = semaphore;
+        }
+
+        public void run() {
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException ignored) {}
+
+            var tictactoc = new Thread[]{
+                new Print("TIC", internalSemaphore),
+                new Print("TAC", internalSemaphore, internalgroupSemaphore),
+                new Print("TOC", internalSemaphore, internalgroupSemaphore)
+            };
+
+            startAndJoin(tictactoc);
+
+
+            semaphore.release();
+        }
+    }
+
+    private static class Print extends Thread {
+        private final Semaphore groupSemaphore;
+        private final Semaphore semaphore;
+        private final String string;
+
+        Print(String string, Semaphore semaphore, Semaphore groupSemaphore) {
+            this.groupSemaphore = groupSemaphore;
             this.semaphore = semaphore;
             this.string = string;
         }
 
-        printingThread(String string) {
-            this.semaphore = new Semaphore(1);
+        Print(String string, Semaphore semaphore) {
+            this.groupSemaphore = new Semaphore(1);
+            this.semaphore = semaphore;
             this.string = string;
         }
 
         @Override
         public void run() {
             try {
+                groupSemaphore.acquire();
                 semaphore.acquire();
             } catch (InterruptedException ignored) {}
 
@@ -35,28 +63,22 @@ public class Main {
             } catch (InterruptedException ignored) {}
 
             semaphore.release();
+            groupSemaphore.release();
         }
     }
 
     public static void main(String[] args) {
+        var semaphore = new Semaphore(1);
         int quantity = getNumber();
+        var threads = new Thread[quantity];
 
-        version1(quantity);
-//        version2(quantity);
-    }
-
-    private static void version1(int quantity) {
         for (int i = 0; i < quantity; i++) {
-            var tic = new printingThread("TIC");
-            var tac = new printingThread("TAC");
-
-            try {
-                tic.start();
-                tic.join();
-                tac.start();
-                tac.join();
-            } catch (InterruptedException ignored) {}
+            threads[i] = new TicTacToc(semaphore);
         }
+
+        startAndJoin(threads);
+
+        System.out.println("Programa finalitzat");
     }
 
     private static int getNumber() {
@@ -66,5 +88,16 @@ public class Main {
             System.out.println("El valor introduït no és un número.");
             return getNumber();
         }
+    }
+
+    private static void startAndJoin(Thread[] threads) {
+        for (var thread : threads) thread.start();
+
+
+        try {
+            for (var thread : threads) {
+                thread.join();
+            }
+        } catch (InterruptedException ignored) {}
     }
 }

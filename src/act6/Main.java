@@ -34,8 +34,6 @@ public class Main {
                 }
             }
         }
-
-
     }
 
     private static class PartnerThread extends Thread {
